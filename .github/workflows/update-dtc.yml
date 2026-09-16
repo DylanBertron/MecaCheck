@@ -1,0 +1,54 @@
+name: Update MecaCheck DTC database
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 3 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  update-dtc:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download OBDex generic DTC database
+        run: |
+          set -e
+          curl -fL --retry 3 \
+            https://foerbsnavi.github.io/obdex/generic.min.json \
+            -o dtc.json
+
+          python - <<'PY'
+          import json
+
+          with open("dtc.json", encoding="utf-8") as f:
+              data = json.load(f)
+
+          if not isinstance(data, list) or len(data) < 9000:
+              raise SystemExit("DTC dataset validation failed")
+
+          codes = [x.get("code") for x in data if isinstance(x, dict)]
+
+          if len(codes) != len(set(codes)):
+              raise SystemExit("Duplicate DTC codes detected")
+
+          print(f"Validated {len(data)} DTC records")
+          PY
+
+      - name: Commit if changed
+        run: |
+          git config user.name "MecaCheck Bot"
+          git config user.email "actions@users.noreply.github.com"
+
+          git add dtc.json
+
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "chore: update DTC database"
+            git push
+          fi
