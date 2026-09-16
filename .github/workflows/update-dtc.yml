@@ -19,7 +19,7 @@ jobs:
         run: |
           set -e
           curl -fL --retry 3 \
-            https://foerbsnavi.github.io/obdex/generic.min.json \
+            https://foerbsnavi.github.io/obdex/generic.json \
             -o dtc.json
 
           python - <<'PY'
