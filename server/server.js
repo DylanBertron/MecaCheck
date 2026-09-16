@@ -102,6 +102,6 @@ Structure ta réponse :
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`MecaCheck AI server listening on port ${PORT}`);
 });
