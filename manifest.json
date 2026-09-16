@@ -1,10 +1,9 @@
 {
-  "name": "MecaCheck V4",
+  "name": "MecaCheck V5",
   "short_name": "MecaCheck",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#07101d",
-  "theme_color": "#0b1220",
-  "lang": "fr",
-  "icons": []
+  "background_color": "#060d18",
+  "theme_color": "#07111f",
+  "lang": "fr"
 }
