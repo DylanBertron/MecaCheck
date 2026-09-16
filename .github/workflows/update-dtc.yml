@@ -13,30 +13,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout MecaCheck
+        uses: actions/checkout@v4
 
-      - name: Download OBDex generic DTC database
+      - name: Checkout OBDex
+        uses: actions/checkout@v4
+        with:
+          repository: foerbsnavi/obdex
+          path: obdex
+
+      - name: Build OBDex database
+        working-directory: obdex
         run: |
-          set -e
-          curl -fL --retry 3 \
-            https://foerbsnavi.github.io/obdex/generic.json \
-            -o dtc.json
+          npm ci
+          npm run build
 
+      - name: Copy DTC database
+        run: |
+          cp obdex/dist/generic.json dtc.json
+
+      - name: Validate DTC database
+        run: |
           python - <<'PY'
           import json
 
           with open("dtc.json", encoding="utf-8") as f:
               data = json.load(f)
 
-          if not isinstance(data, list) or len(data) < 9000:
-              raise SystemExit("DTC dataset validation failed")
+          if not isinstance(data, list):
+              raise SystemExit("DTC database is not a list")
+
+          if len(data) < 9000:
+              raise SystemExit(f"Only {len(data)} DTC records found")
 
           codes = [x.get("code") for x in data if isinstance(x, dict)]
 
           if len(codes) != len(set(codes)):
               raise SystemExit("Duplicate DTC codes detected")
 
-          print(f"Validated {len(data)} DTC records")
+          print(f"SUCCESS: {len(data)} DTC records validated")
           PY
 
       - name: Commit if changed
