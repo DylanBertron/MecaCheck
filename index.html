@@ -1,97 +1,97 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MecaCheck — Prototype</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1220">
+<title>MecaCheck V4</title>
 <style>
-:root{--bg:#071018;--panel:#101b24;--panel2:#162530;--line:#263744;--text:#f2f6f8;--muted:#93a5b2;--blue:#1598ff;--red:#ff4d4d;--orange:#ffb020;--green:#2ed47a}
-*{box-sizing:border-box} body{margin:0;background:#050b10;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-.app{max-width:430px;min-height:100vh;margin:auto;background:linear-gradient(180deg,#08131c,#071018);padding-bottom:78px}
-header{padding:22px 18px 10px;display:flex;align-items:center;gap:12px}
-.logo{width:46px;height:46px;border:2px solid #258fd8;border-radius:14px;display:grid;place-items:center;background:#0d1d2a;font-size:25px}
-h1{font-size:23px;margin:0} h1 span{color:var(--blue)} .tag{font-size:9px;letter-spacing:1.6px;color:var(--muted)}
-.screen{display:none;padding:10px 16px}.screen.active{display:block}
-.hero{margin:10px 0 16px;padding:22px;border-radius:20px;background:radial-gradient(circle at 80% 20%,#173b55,#0c1821 55%);border:1px solid var(--line)}
-.hero h2{font-size:23px;margin:0 0 7px}.hero p{color:#a9bac4;margin:0;line-height:1.45}
-.vehicle{padding:14px;border-radius:16px;background:var(--panel);border:1px solid var(--line);margin:12px 0}
-.vehicle .car{font-size:14px;font-weight:700}.vehicle small{color:var(--muted)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;min-height:105px;cursor:pointer}.card:active{transform:scale(.98)} .ico{font-size:25px;margin-bottom:10px}.card b{font-size:14px}.card small{display:block;color:var(--muted);margin-top:5px}
-.title{display:flex;align-items:center;gap:10px;margin:12px 0 15px}.back{background:none;border:0;color:#fff;font-size:25px;cursor:pointer}.title h2{margin:0;font-size:20px}
-.input{width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);background:#0d1820;color:#fff;font-size:15px;outline:none}.input:focus{border-color:var(--blue)}
-.btn{width:100%;border:0;border-radius:12px;padding:14px;margin-top:10px;background:var(--blue);color:#fff;font-weight:700;font-size:14px;cursor:pointer}.btn.secondary{background:var(--panel2);border:1px solid var(--line)}
-.code{display:flex;justify-content:space-between;align-items:center;padding:15px;margin:9px 0;background:var(--panel);border:1px solid var(--line);border-radius:14px;cursor:pointer}.code strong{color:#ff5b5b;font-size:16px}.code small{display:block;color:var(--muted);margin-top:3px}
-.badge{font-size:11px;padding:6px 9px;border-radius:20px;background:#32171b;color:#ff8b8b}
-.detail{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}.detail h3{margin:0 0 10px;font-size:15px}.detail p,.detail li{color:#b5c2ca;font-size:13px;line-height:1.5}.detail ol{padding-left:20px;margin-bottom:0}.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px;background:var(--orange)}
-.report{background:#f4f1e8;color:#20252a;border-radius:10px;padding:18px;margin-top:15px;font-size:12px}.report h3{margin-top:0}.report hr{border:0;border-top:1px solid #bbb}
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);height:70px;background:#0a141c;border-top:1px solid var(--line);display:flex;justify-content:space-around;padding-top:9px;z-index:5}nav button{background:none;border:0;color:#71828d;font-size:10px;cursor:pointer}nav button.active{color:var(--blue)}nav .ni{display:block;font-size:21px;margin-bottom:3px}
-.toast{position:fixed;bottom:82px;left:50%;transform:translateX(-50%);background:#172631;border:1px solid #35505f;padding:11px 16px;border-radius:12px;font-size:13px;display:none}
+*{box-sizing:border-box}body{margin:0;background:#07101d;color:#eef4ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:84px}.top{padding:20px 18px 10px;position:sticky;top:0;background:#07101df2;backdrop-filter:blur(12px);z-index:3}
+.brand{font-weight:800;font-size:24px}.sub{color:#8fa2bd;font-size:12px;margin-top:3px}
+main{padding:10px 16px}.card{background:#0d1828;border:1px solid #1c2b40;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 8px 25px #0002}
+h2{font-size:18px;margin:5px 0 12px}.muted{color:#8fa2bd}.row{display:flex;gap:10px;align-items:center}.grow{flex:1}
+input,textarea,select{width:100%;background:#091322;color:#fff;border:1px solid #263951;border-radius:12px;padding:13px;font-size:15px;margin:6px 0 10px}textarea{min-height:100px;resize:vertical}
+button{border:0;border-radius:12px;padding:12px 15px;background:#2d7cff;color:#fff;font-weight:700;font-size:14px}.secondary{background:#17263b}.danger{background:#9b2c2c}.pill{display:inline-block;background:#152942;border:1px solid #284363;color:#bcd4f4;padding:6px 9px;border-radius:99px;font-size:12px;margin:3px}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat div{background:#0a1423;padding:12px;border-radius:12px;text-align:center}.num{font-size:20px;font-weight:800}
+.result{padding:12px;border-radius:12px;background:#091525;border-left:3px solid #2d7cff;margin:8px 0}.ok{border-left-color:#36c98f}.warn{border-left-color:#e8b44f}
+nav{position:fixed;bottom:0;left:0;right:0;background:#091322f5;border-top:1px solid #1c2b40;display:flex;justify-content:center;z-index:5}.navin{max-width:520px;width:100%;display:grid;grid-template-columns:repeat(4,1fr)}nav button{background:none;color:#8194ad;border-radius:0;padding:10px 4px;font-size:11px}nav button.active{color:#fff;background:#11233b}
+.hidden{display:none}.small{font-size:12px}.titleline{display:flex;justify-content:space-between;align-items:center}
 </style>
 </head>
 <body>
 <div class="app">
-<header><div class="logo">⚙️</div><div><h1>Meca<span>Check</span></h1><div class="tag">DIAGNOSTIQUER • COMPRENDRE • RÉPARER</div></div></header>
-
-<section id="home" class="screen active">
-<div class="hero"><h2>Le bon diagnostic,<br>au bon moment.</h2><p>Ton assistant de diagnostic pensé pour les mécanos.</p></div>
-<div class="vehicle"><div class="car">🚗 Opel Astra K Sport Tourer</div><small>1.6 CDTI BiTurbo • 2016 • 136 ch</small></div>
-<div class="grid">
-<div class="card" onclick="show('vin')"><div class="ico">🔎</div><b>Scanner un VIN</b><small>Identifier le véhicule</small></div>
-<div class="card" onclick="show('codes')"><div class="ico">⚠️</div><b>Codes défauts</b><small>Trouver la cause</small></div>
-<div class="card" onclick="show('symptoms')"><div class="ico">🧰</div><b>Diagnostic symptômes</b><small>Décrire le problème</small></div>
-<div class="card" onclick="show('photo')"><div class="ico">📷</div><b>Identifier une pièce</b><small>Avec une photo</small></div>
-</div>
-<div class="detail" style="margin-top:14px"><h3>Dernier diagnostic</h3><p style="margin:0"><b>P2458</b> • P2849 • P0715<br><span style="color:#ffb020">●</span> 3 défauts enregistrés sur Astra K</p></div>
+<header class="top"><div class="brand">🔧 MecaCheck</div><div class="sub">Diagnostic automobile • V4</div></header>
+<main>
+<section id="home">
+<div class="card"><div class="titleline"><div><h2>Atelier</h2><div class="muted">Votre poste de diagnostic</div></div><span class="pill">V4</span></div>
+<div class="stat"><div><div class="num" id="vehicleCount">0</div><div class="small muted">Véhicules</div></div><div><div class="num">9 533</div><div class="small muted">DTC génériques*</div></div><div><div class="num">132</div><div class="small muted">PIDs*</div></div></div></div>
+<div class="card"><h2>Identification rapide</h2><input id="vinHome" placeholder="VIN 17 caractères" maxlength="17"><button onclick="decodeVin('vinHome')">Décoder le VIN</button><div id="vinHomeResult"></div></div>
+<div class="card"><h2>Diagnostic assisté</h2><textarea id="symHome" placeholder="Ex. P0299, manque de puissance, fumée, pression turbo..."></textarea><button onclick="diagnose('symHome','diagHome')">Analyser</button><div id="diagHome"></div></div>
+<div class="small muted">* DTC/PIDs provenant d'une source open-data dont la licence annoncée permet la réutilisation. Les données constructeur spécifiques restent séparées.</div>
 </section>
 
-<section id="vin" class="screen">
-<div class="title"><button class="back" onclick="show('home')">‹</button><h2>Scanner un VIN</h2></div>
-<div class="detail"><p>Prototype : saisis un VIN pour simuler l'identification du véhicule.</p><input class="input" id="vininput" placeholder="Ex. W0LBD8EG8G8001234"><button class="btn" onclick="identify()">Identifier le véhicule</button></div>
-<div id="vinresult" class="vehicle" style="display:none"><div class="car">🚗 Opel Astra K Sport Tourer</div><small>1.6 CDTI BiTurbo • 2016 • 136 ch • B16DTH</small><button class="btn" onclick="show('codes')">Voir les codes défauts</button></div>
+<section id="diag" class="hidden">
+<div class="card"><h2>🧠 Diagnostic Meca</h2><div class="muted">Décris les symptômes, codes et mesures.</div><textarea id="symDiag" placeholder="Ex. P0299 + manque de puissance + pression turbo réelle faible"></textarea><button onclick="diagnose('symDiag','diagResult')">Lancer le diagnostic</button><div id="diagResult"></div></div>
 </section>
 
-<section id="codes" class="screen">
-<div class="title"><button class="back" onclick="show('home')">‹</button><h2>Codes défauts</h2></div>
-<input class="input" placeholder="Rechercher un code (ex. P2458)" oninput="filterCodes(this.value)">
-<div id="codeslist">
-<div class="code" data-code="p2458" onclick="diagnostic('P2458')"><div><strong>P2458</strong><small>Durée de régénération du FAP</small></div><span class="badge">Moteur</span></div>
-<div class="code" data-code="p2849" onclick="diagnostic('P2849')"><div><strong>P2849</strong><small>Circuit position fourchette « A »</small></div><span class="badge">Boîte</span></div>
-<div class="code" data-code="p0715" onclick="diagnostic('P0715')"><div><strong>P0715</strong><small>Capteur vitesse entrée boîte</small></div><span class="badge">Boîte</span></div>
-<div class="code" data-code="p0299" onclick="diagnostic('P0299')"><div><strong>P0299</strong><small>Sous-pression de suralimentation</small></div><span class="badge">Moteur</span></div>
-</div>
+<section id="vin" class="hidden">
+<div class="card"><h2>🔢 Identification VIN</h2><input id="vin" placeholder="VIN 17 caractères" maxlength="17"><select id="year"><option value="">Année (facultatif)</option></select><button onclick="decodeVin('vin')">Interroger vPIC</button><div id="vinResult"></div></div>
+<div class="card"><h2>🇫🇷 Immatriculation</h2><p class="muted">Le champ est préparé, mais aucune interrogation SIV n'est effectuée. L'accès aux données françaises est encadré.</p><input placeholder="AA-123-AA"><button class="secondary" disabled>Recherche nationale — à connecter</button></div>
 </section>
 
-<section id="diagnostic" class="screen">
-<div class="title"><button class="back" onclick="show('codes')">‹</button><h2 id="dtitle">Détail du code</h2></div>
-<div class="detail"><h3 id="dname">P2458</h3><p id="ddesc">Défaut lié à la durée de régénération du filtre à particules.</p></div>
-<div class="detail"><h3>Causes possibles</h3><p>🟠 FAP chargé ou régénération interrompue</p><p>🔵 Capteur de pression différentielle / durites</p><p>🔵 Température moteur ou sondes incohérentes</p><p>🔵 Problème de gestion moteur</p></div>
-<div class="detail"><h3>Procédure de contrôle</h3><ol><li>Lire les valeurs en direct et les conditions d'apparition.</li><li>Contrôler les durites et raccords.</li><li>Contrôler les capteurs associés.</li><li>Comparer les valeurs mesurées aux valeurs de référence.</li><li>Effacer le défaut puis effectuer un essai routier.</li></ol></div>
-<button class="btn" onclick="report()">Générer un rapport client</button>
-<div id="report" class="report" style="display:none"><h3>MECA CHECK — RAPPORT DIAGNOSTIC</h3><b>Véhicule</b><br>Opel Astra K • 1.6 CDTI BiTurbo • 2016<hr><b>Code</b><br><span id="rCode">P2458</span><hr><b>Recommandation</b><br>Effectuer les contrôles listés dans la procédure avant remplacement de pièces.<hr><small>Prototype MecaCheck</small></div>
+<section id="dtc" class="hidden">
+<div class="card"><h2>📚 Base DTC</h2><input id="dtcSearch" placeholder="P0420, P0299, capteur..." oninput="searchDtc()"><div id="dtcResult"></div></div>
+<div class="card"><h2>📡 PIDs</h2><p class="muted">Architecture prête pour intégrer les données PID open-data et, plus tard, un adaptateur OBD Bluetooth.</p><span class="pill">Mode 01</span><span class="pill">Mode 09</span><span class="pill">Live Data</span></div>
 </section>
 
-<section id="symptoms" class="screen">
-<div class="title"><button class="back" onclick="show('home')">‹</button><h2>Diagnostic symptômes</h2></div>
-<div class="detail"><p>Décris ce que fait le véhicule :</p><textarea id="sym" class="input" rows="5" placeholder="Ex. perte de puissance, voyant moteur, fumée..."></textarea><button class="btn" onclick="symdiag()">Analyser le symptôme</button></div>
-<div id="symres" class="detail" style="display:none"><h3>Pistes à contrôler</h3><p>🔧 Lecture des défauts calculateur</p><p>🔧 Pression / débit d'air</p><p>🔧 Alimentation carburant</p><p>🔧 Suralimentation et admission</p><small style="color:var(--muted)">Résultat indicatif : confirmer avec les mesures constructeur.</small></div>
+<section id="work" class="hidden">
+<div class="card"><h2>🛠️ Atelier</h2><p class="muted">Véhicules enregistrés localement sur cet appareil.</p><input id="vehicleName" placeholder="Ex. Astra K 1.6 CDTI"><input id="vehicleVin" placeholder="VIN"><button onclick="addVehicle()">Ajouter le véhicule</button><div id="vehicles"></div></div>
+<div class="card"><h2>⚡ Schéma générique</h2><div class="result ok"><b>Capteur</b> → Faisceau → <b>ECU</b><br><span class="small muted">Schéma pédagogique. Ce n'est pas un schéma constructeur OEM.</span></div><button class="secondary" onclick="alert('Le moteur de schémas sera connecté aux données autorisées dans une prochaine version.')">Ouvrir le schéma</button></div>
 </section>
-
-<section id="photo" class="screen">
-<div class="title"><button class="back" onclick="show('home')">‹</button><h2>Identifier une pièce</h2></div>
-<div class="detail"><div style="font-size:48px;text-align:center;padding:25px">📷</div><p style="text-align:center">La version complète permettra d'envoyer une photo pour identifier la pièce.</p><button class="btn" onclick="toast('Fonction photo prévue dans la V2 📸')">Prendre une photo</button></div>
-</section>
-
-<nav><button class="active" onclick="show('home',this)"><span class="ni">⌂</span>Accueil</button><button onclick="show('codes',this)"><span class="ni">⌕</span>Recherche</button><button onclick="show('home',this)"><span class="ni">🚗</span>Véhicules</button><button onclick="toast('Plus de fonctions arrivent dans la prochaine version')"><span class="ni">＋</span>Plus</button></nav>
-<div id="toast" class="toast"></div>
+</main>
+<nav><div class="navin">
+<button id="n0" class="active" onclick="show('home',0)">🏠<br>Accueil</button>
+<button id="n1" onclick="show('diag',1)">🧠<br>Diagnostic</button>
+<button id="n2" onclick="show('vin',2)">🚗<br>VIN</button>
+<button id="n3" onclick="show('dtc',3)">📚<br>DTC</button>
+</div></nav>
 </div>
 <script>
-const screens=['home','vin','codes','diagnostic','symptoms','photo'];
-function show(id,btn){screens.forEach(x=>document.getElementById(x).classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);if(btn){document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active')}}
-function identify(){let v=document.getElementById('vininput').value.trim();if(!v){toast('Entre un VIN pour continuer');return}document.getElementById('vinresult').style.display='block';toast('Véhicule identifié ✓')}
-function filterCodes(q){q=q.toLowerCase();document.querySelectorAll('.code').forEach(e=>e.style.display=e.dataset.code.includes(q)?'flex':'none')}
-function diagnostic(c){document.getElementById('dtitle').textContent='Détail du code';document.getElementById('dname').textContent=c;document.getElementById('rCode').textContent=c;let d={P2458:'Durée de régénération du filtre à particules trop longue.',P2849:'Circuit de position de fourchette « A » de boîte de vitesses.',P0715:'Signal du capteur de vitesse d’entrée de boîte.',P0299:'Pression de suralimentation insuffisante.'};document.getElementById('ddesc').textContent=d[c]||'Informations de diagnostic disponibles.';show('diagnostic')}
-function report(){document.getElementById('report').style.display='block';toast('Rapport généré ✓')}
-function symdiag(){if(!document.getElementById('sym').value.trim()){toast('Décris le symptôme');return}document.getElementById('symres').style.display='block'}
-function toast(t){let x=document.getElementById('toast');x.textContent=t;x.style.display='block';clearTimeout(window.tt);window.tt=setTimeout(()=>x.style.display='none',2200)}
+const dtcs=[
+["P0299","Turbo/Suralimentation — pression insuffisante","Contrôler durites, circuit de dépression/commande, fuite d'air, capteur MAP et comparer pression demandée/réelle."],
+["P0420","Efficacité catalyseur sous le seuil","Contrôler sondes O2, fuites d'échappement, température et état du catalyseur avant remplacement."],
+["P0401","Débit EGR insuffisant","Contrôler vanne EGR, conduits, commande et cohérence des mesures d'air."],
+["P0715","Capteur de vitesse d'entrée de transmission","Contrôler alimentation, masse, faisceau, signal et connecteur avant de remplacer le capteur."],
+["P2849","Fourchette de sélection / commande de transmission","Contrôler actionneur, position de sélection, faisceau et valeurs de position avec l'outil de diagnostic."]
+];
+function show(id,n){document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('n'+n).classList.add('active');if(id==='work')renderVehicles()}
+for(let y=1981;y<=2027;y++){let o=document.createElement('option');o.value=y;o.textContent=y;document.getElementById('year').appendChild(o)}
+async function decodeVin(id){
+ const v=document.getElementById(id).value.trim().toUpperCase(); const out=document.getElementById(id==='vin'?'vinResult':'vinHomeResult');
+ if(v.length<11){out.innerHTML='<div class="result warn">VIN trop court.</div>';return}
+ out.innerHTML='<div class="result">Interrogation vPIC…</div>';
+ try{
+  const year=document.getElementById('year').value; const url='https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/'+encodeURIComponent(v)+'?format=json'+(year?'&modelyear='+year:'');
+  const r=await fetch(url); const j=await r.json(); const x=j.Results.reduce((a,z)=>(a[z.Variable]=z.Value,a),{});
+  const fields=['Make','Model','Model Year','Vehicle Type','Body Class','Engine Number of Cylinders','Fuel Type - Primary','Transmission Style','Plant Country'];
+  out.innerHTML='<div class="result ok">'+fields.map(k=>`<b>${k}</b> : ${x[k]||'—'}`).join('<br>')+'</div>';
+ }catch(e){out.innerHTML='<div class="result warn">Le service VIN est momentanément inaccessible. Vérifie aussi que le VIN concerne un véhicule couvert par vPIC.</div>'}
+}
+function diagnose(input,outId){
+ const q=document.getElementById(input).value.toUpperCase(); const out=document.getElementById(outId);
+ if(!q.trim()){out.innerHTML='<div class="result warn">Décris le symptôme ou ajoute un code.</div>';return}
+ let found=dtcs.filter(d=>q.includes(d[0])); let html='';
+ if(found.length) found.forEach(d=>html+=`<div class="result"><b>${d[0]} — ${d[1]}</b><br><span class="small">${d[2]}</span></div>`);
+ if(/PUISSANCE|TURBO|SURALIMENTATION/.test(q)&&!found.length) html+='<div class="result">Piste : vérifier pression de suralimentation demandée/réelle, fuites, commande turbo, MAP/MAF et alimentation électrique.</div>';
+ if(!html) html='<div class="result">Aucun scénario local précis. Ajoute le DTC, les valeurs mesurées, le moteur et les symptômes.</div>';
+ html+='<div class="result warn"><b>Important :</b> ce résultat est une aide au diagnostic, pas une confirmation de panne.</div>';out.innerHTML=html;
+}
+function searchDtc(){const q=document.getElementById('dtcSearch').value.toUpperCase();const out=document.getElementById('dtcResult');const a=dtcs.filter(d=>d.join(' ').toUpperCase().includes(q));out.innerHTML=a.map(d=>`<div class="result"><b>${d[0]}</b> — ${d[1]}<br><span class="small">${d[2]}</span></div>`).join('')||'<div class="muted">Aucun résultat local.</div>'}
+function getVehicles(){return JSON.parse(localStorage.getItem('mcVehicles')||'[]')}
+function addVehicle(){const name=document.getElementById('vehicleName').value.trim(),vin=document.getElementById('vehicleVin').value.trim().toUpperCase();if(!name&&!vin)return;let a=getVehicles();a.push({name,vin,date:new Date().toLocaleDateString('fr-FR')});localStorage.setItem('mcVehicles',JSON.stringify(a));document.getElementById('vehicleName').value='';document.getElementById('vehicleVin').value='';renderVehicles()}
+function renderVehicles(){const a=getVehicles();document.getElementById('vehicleCount').textContent=a.length;const out=document.getElementById('vehicles');out.innerHTML=a.map((v,i)=>`<div class="result"><b>${v.name||'Véhicule'}</b><br>${v.vin||'VIN non renseigné'}<br><span class="small muted">Ajouté le ${v.date}</span> <button class="danger" onclick="delVehicle(${i})">Supprimer</button></div>`).join('')||'<p class="muted">Aucun véhicule.</p>'}
+function delVehicle(i){let a=getVehicles();a.splice(i,1);localStorage.setItem('mcVehicles',JSON.stringify(a));renderVehicles()}
+renderVehicles();searchDtc();
 </script>
 </body></html>
