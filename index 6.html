@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#060d18">
+<title>MecaCheck</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#060d18;color:#eef5ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:600px;margin:auto;min-height:100vh;padding-bottom:82px}
+.top{padding:18px 16px 12px;background:#060d18ee;position:sticky;top:0;z-index:5;border-bottom:1px solid #17263a;backdrop-filter:blur(10px)}
+.brand{font-size:25px;font-weight:850}.sub,.muted{color:#8196b2}
+.main{padding:12px 14px}
+.card{background:#0b1625;border:1px solid #1a2a40;border-radius:18px;padding:15px;margin:10px 0}
+h2{font-size:18px;margin:2px 0 10px} h3{font-size:15px;margin:16px 0 7px}
+input,select,textarea{width:100%;background:#07111d;color:#fff;border:1px solid #263b55;border-radius:12px;padding:12px;font-size:15px;margin:5px 0 9px}
+textarea{min-height:95px}
+button{border:0;border-radius:12px;padding:11px 14px;background:#287cff;color:#fff;font-weight:750}
+button.secondary{background:#13263e}.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.tile{background:#0d1b2e;border:1px solid #213650;border-radius:15px;padding:13px;text-align:left}.tile b{display:block;margin-bottom:4px}.tile span{font-size:12px;color:#8296b1}
+.row{display:flex;gap:8px}.row>*{flex:1}
+.result{background:#081321;border-left:3px solid #287cff;padding:12px;border-radius:12px;margin:8px 0}
+.result.click{cursor:pointer}.warn{border-left-color:#e7b448}.ok{border-left-color:#2bc98a}
+.tag{display:inline-block;padding:5px 8px;border-radius:999px;background:#13263e;color:#b9cbe0;font-size:12px;margin:3px 3px 3px 0}
+.hidden{display:none}.small{font-size:13px}.price{font-weight:800}
+nav{position:fixed;bottom:0;left:0;right:0;background:#07111eee;border-top:1px solid #1a2a40;z-index:6;backdrop-filter:blur(10px)}
+.nav{max-width:600px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav button{background:none;color:#7890ad;border-radius:0;font-size:10px;padding:9px 4px}
+nav button.active{color:#fff;background:#10233c}
+.loader{padding:18px;text-align:center;color:#8196b2}
+.stat{font-size:27px;font-weight:850}
+ul{margin:6px 0 0 20px;padding:0}li{margin:5px 0}
+a{color:#70a9ff}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand">🔧 MecaCheck</div>
+  <div class="sub">Diagnostic automobile • base DTC locale</div>
+</header>
+
+<div class="main">
+<section id="home">
+  <div class="card">
+    <h2>Diagnostic atelier</h2>
+    <div class="stat" id="count">—</div>
+    <div class="muted">codes défauts disponibles</div>
+  </div>
+  <div class="card">
+    <h2>🔎 Recherche rapide</h2>
+    <input id="qh" placeholder="P0420, turbo, capteur..." autocomplete="off">
+    <button onclick="goSearch()">Rechercher</button>
+  </div>
+  <div class="card">
+    <h2>🧠 Diagnostic guidé</h2>
+    <p class="muted small">Décris les codes et symptômes. MecaCheck retrouve les défauts correspondants et affiche les pistes de contrôle disponibles dans la base.</p>
+    <textarea id="dqHome" placeholder="Ex. P0299 + manque de puissance + turbo faible"></textarea>
+    <button onclick="runDiagFromHome()">Analyser</button>
+  </div>
+</section>
+
+<section id="dtc" class="hidden">
+  <div class="card">
+    <h2>📚 Base DTC</h2>
+    <input id="q" placeholder="Code, symptôme, composant, cause..." oninput="scheduleSearch()" autocomplete="off">
+    <div id="list"><div class="loader">Chargement…</div></div>
+  </div>
+</section>
+
+<section id="detail" class="hidden">
+  <div class="card">
+    <button class="secondary" onclick="show('dtc',1)">← Retour</button>
+    <div id="detailBox"></div>
+  </div>
+</section>
+
+<section id="vin" class="hidden">
+  <div class="card">
+    <h2>🚗 VIN</h2>
+    <input id="vinv" maxlength="17" placeholder="VIN 17 caractères" autocomplete="off">
+    <button onclick="decodeVin()">Décoder avec vPIC</button>
+    <div id="vinres"></div>
+  </div>
+</section>
+
+<section id="diag" class="hidden">
+  <div class="card">
+    <h2>🧠 Diagnostic</h2>
+    <textarea id="dq" placeholder="Ex. P0299 + manque de puissance + pression turbo faible"></textarea>
+    <button onclick="diag()">Analyser</button>
+    <div id="dres"></div>
+  </div>
+</section>
+</div>
+
+<nav><div class="nav"><button class="active" onclick="show('home',0)">🏠<br>Accueil</button><button onclick="show('dtc',1)">📚<br>DTC</button><button onclick="show('diag',2)">🧠<br>Diagnostic</button><button onclick="show('tools',3)">🧰<br>Outils</button><button onclick="show('vin',4)">🚗<br>VIN</button></div></nav>
+</div>
+
+<script>
+let db=[];
+let index=[];
+let timer=null;
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const txt=v=>{
+  if(v==null)return '';
+  if(typeof v==='string')return v;
+  if(Array.isArray(v))return v.map(txt).join(' ');
+  if(typeof v==='object')return Object.values(v).map(txt).join(' ');
+  return String(v);
+};
+const frDifficulty=v=>({easy:'Facile',medium:'Moyenne',hard:'Difficile'})[v]||v||'—';
+const frLikelihood=v=>({high:'Élevée',medium:'Moyenne',low:'Faible'})[v]||v||'—';
+const title=x=>x?.title?.en||x?.title?.de||'Code défaut';
+const desc=x=>x?.description?.en||x?.description?.de||'';
+const label=x=>x?.label?.en||x?.label?.de||txt(x);
+
+async function load(){
+  try{
+    const r=await fetch('./dtc.json',{cache:'no-store'});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    db=await r.json();
+    document.getElementById('count').textContent=db.length.toLocaleString('fr-FR');
+    index=db.map(x=>({
+      x,
+      s:(x.code+' '+title(x)+' '+desc(x)+' '+txt(x.affected_components)+' '+txt(x.common_causes)+' '+txt(x.symptoms)+' '+txt(x.related_codes)).toLowerCase()
+    }));
+    search();
+  }catch(e){
+    document.getElementById('count').textContent='Erreur';
+    document.getElementById('list').innerHTML='<div class="result warn">Impossible de charger dtc.json.</div>';
+  }
+}
+
+function show(id,n){
+  document.querySelectorAll('section').forEach(x=>x.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',i===n));
+  if(id==='dtc')search();
+}
+
+function scheduleSearch(){
+  clearTimeout(timer); timer=setTimeout(search,120);
+}
+
+function search(){
+  if(!index.length)return;
+  const q=(document.getElementById('q')?.value||'').trim().toLowerCase();
+  let a;
+  if(!q)a=index.slice(0,30);
+  else{
+    const words=q.split(/\s+/).filter(Boolean);
+    a=index.filter(o=>words.every(w=>o.s.includes(w))).slice(0,80);
+  }
+  document.getElementById('list').innerHTML=a.map(o=>{
+    const x=o.x;
+    return '<div class="result click" onclick="openDetail('+JSON.stringify(x.code)+')"><b>'+esc(x.code)+'</b> — '+esc(title(x))+
+      '<br><span class="muted small">'+esc(desc(x).slice(0,190))+(desc(x).length>190?'…':'')+'</span></div>';
+  }).join('')||'<div class="muted">Aucun résultat.</div>';
+}
+
+function goSearch(){
+  show('dtc',1);
+  document.getElementById('q').value=document.getElementById('qh').value;
+  search();
+}
+
+function openDetail(code){
+  const x=db.find(a=>a.code===code);
+  if(!x)return;
+  show('detail',1);
+  let html='<h2>🔧 '+esc(x.code)+'</h2><h3>'+esc(title(x))+'</h3>';
+  if(desc(x))html+='<p>'+esc(desc(x))+'</p>';
+
+  if(x.category)html+='<span class="tag">'+esc(x.category)+'</span>';
+  if(x.affected_components?.length){
+    html+='<h3>🔩 Composants concernés</h3><div>'+x.affected_components.map(v=>'<span class="tag">'+esc(v)+'</span>').join('')+'</div>';
+  }
+
+  if(x.common_causes?.length){
+    html+='<h3>⚠️ Causes possibles</h3><ul>'+x.common_causes.map(c=>{
+      return '<li><b>'+esc(label(c))+'</b> <span class="muted">('+esc(frLikelihood(c.likelihood))+')</span></li>';
+    }).join('')+'</ul>';
+  }
+
+  if(x.symptoms?.length){
+    html+='<h3>📋 Symptômes</h3><ul>'+x.symptoms.map(s=>'<li>'+esc(label(s))+'</li>').join('')+'</ul>';
+  }
+
+  if(x.repair){
+    html+='<h3>🛠️ Réparation / estimation</h3>';
+    html+='<p>Difficulté : <b>'+esc(frDifficulty(x.repair.difficulty))+'</b>';
+    if(x.repair.diy_possible!==undefined)html+=' • DIY : <b>'+(x.repair.diy_possible?'possible':'à éviter')+'</b>';
+    html+='</p>';
+    if(Array.isArray(x.repair.estimated_hours))html+='<p>Temps estimé : '+esc(x.repair.estimated_hours[0])+'–'+esc(x.repair.estimated_hours[1])+' h</p>';
+    if(Array.isArray(x.repair.estimated_cost_eur))html+='<p class="price">Estimation : '+esc(x.repair.estimated_cost_eur[0])+'–'+esc(x.repair.estimated_cost_eur[1])+' €</p>';
+  }
+
+  if(x.flags){
+    html+='<h3>🚦 Indicateurs</h3>';
+    if(x.flags.mil!==undefined)html+='<span class="tag">MIL : '+(x.flags.mil?'Oui':'Non')+'</span>';
+    if(x.flags.emissions_relevant!==undefined)html+='<span class="tag">Émissions : '+(x.flags.emissions_relevant?'Oui':'Non')+'</span>';
+    if(x.flags.limp_mode!==undefined)html+='<span class="tag">Mode dégradé : '+(x.flags.limp_mode?'Possible':'Non')+'</span>';
+  }
+
+  if(x.related_codes?.length){
+    html+='<h3>🔗 Codes associés</h3><div>'+x.related_codes.map(c=>'<button class="secondary" style="margin:3px" onclick="openDetail('+JSON.stringify(c)+')">'+esc(c)+'</button>').join('')+'</div>';
+  }
+
+  if(x.sources?.length){
+    html+='<h3>📎 Sources</h3><ul>'+x.sources.slice(0,8).map(s=>'<li><a href="'+esc(s)+'" target="_blank" rel="noopener">'+esc(s)+'</a></li>').join('')+'</ul>';
+  }
+
+  html+='<p class="muted small">⚠️ Un DTC indique un symptôme ou une condition détectée, pas nécessairement la pièce à remplacer. Confirmer avec les mesures et la documentation du véhicule.</p>';
+  document.getElementById('detailBox').innerHTML=html;
+}
+
+function runDiagFromHome(){
+  document.getElementById('dq').value=document.getElementById('dqHome').value;
+  show('diag',3); diag();
+}
+
+function diag(){
+  const q=document.getElementById('dq').value.toUpperCase();
+  const codes=[...new Set([...q.matchAll(/\b[PBCU][0-9A-F]{4}\b/g)].map(x=>x[0]))];
+  let html='';
+  if(codes.length){
+    html='<h3>Codes détectés</h3>'+codes.map(c=>{
+      const x=db.find(a=>a.code===c);
+      return x?'<div class="result click" onclick="openDetail('+JSON.stringify(c)+')"><b>'+esc(c)+'</b> — '+esc(title(x))+'<br><span class="muted small">'+esc(desc(x).slice(0,180))+'</span></div>':'<div class="result warn"><b>'+esc(c)+'</b> — Code absent de la base générique</div>';
+    }).join('');
+  }else{
+    const q2=q.toLowerCase().trim();
+    const words=q2.split(/\s+/).filter(w=>w.length>2);
+    const hits=words.length?index.filter(o=>words.some(w=>o.s.includes(w))).slice(0,15):[];
+    html=hits.length?'<h3>Pistes trouvées</h3>'+hits.map(o=>'<div class="result click" onclick="openDetail('+JSON.stringify(o.x.code)+')"><b>'+esc(o.x.code)+'</b> — '+esc(title(o.x))+'</div>').join(''):'<div class="result warn">Ajoute un code défaut ou décris un symptôme.</div>';
+  }
+  document.getElementById('dres').innerHTML=html;
+}
+
+const tools={
+multimeter:{t:'🔌 Multimètre — bases',intro:'Pour une tension, mesurer en parallèle. Pour résistance/continuité, mettre le circuit hors tension.',steps:['Choisir le bon mode et la bonne plage.','Pour une tension DC : noir sur une masse fiable, rouge sur le point à contrôler.','Pour résistance/continuité : circuit hors tension et, si nécessaire, calculateur déconnecté.','Une continuité proche de 0 Ω ne prouve pas qu’un fil tient sa charge.'],vals:[['Batterie au repos','≈ 12,4–12,8 V','indicatif'],['Continuité','proche de 0 Ω','indicatif'],['Référence capteur','souvent 5 V','selon système']]},
+voltdrop:{t:'⚡ Chute de tension',intro:'La chute de tension se mesure sous charge. Elle permet de trouver une résistance parasite.',steps:['Mettre le circuit en fonctionnement.','Mesurer entre + batterie et + consommateur.','Mesurer entre masse consommateur et − batterie.','Une valeur élevée oriente vers câble, cosse, relais, fusible ou masse.'],vals:[['Mesure','sous charge','important'],['Masse','consommateur ↔ − batterie','comparatif']]},
+harness:{t:'🧵 Contrôle de faisceau',intro:'Un test de continuité seul ne suffit pas pour condamner ou valider un faisceau.',steps:['Identifier le schéma et les bornes.','Contrôler visuellement frottement, oxydation et broches.','Hors tension, tester coupure et courts-circuits selon le schéma.','Sous charge, contrôler alimentation et masse par chute de tension.','Pour un défaut intermittent, effectuer un test de mouvement contrôlé.'],vals:[['Coupure','circuit ouvert / résistance très élevée','selon circuit'],['Court-circuit','contrôle par rapport au schéma','selon circuit']]},
+clamp:{t:'🗜️ Pince ampèremétrique',intro:'La pince mesure le courant sans ouvrir le circuit. Une pince DC est nécessaire pour du courant continu.',steps:['Zéroter/tarer l’appareil.','Entourer un seul conducteur.','Mesurer au démarrage ou en fonctionnement selon le défaut.','Pour une consommation parasite, respecter la procédure de mise en veille du véhicule.'],vals:[['Démarrage','courant élevé possible','dépend moteur'],['Veille','mesurer après mise en veille','dépend véhicule']]},
+torque:{t:'🔩 Clé dynamométrique',intro:'Le couple doit venir d’une donnée fiable correspondant au véhicule et à la pièce.',steps:['Vérifier l’unité : Nm, daN·m, lb-ft.','Régler la clé sur la valeur documentée.','Respecter la plage de fonctionnement de la clé.','Respecter ordre de serrage et éventuel couple + angle.','Ne jamais déduire une valeur constructeur d’un autre modèle.'],vals:[['Conversion','1 daN·m = 10 Nm','exact'],['Couple + angle','couple initial puis angle','selon constructeur']]},
+electric:{t:'📐 Électricité automobile — bases',intro:'Relations utiles pour raisonner sur un circuit.',steps:['Loi d’Ohm : U = R × I.','Puissance : P = U × I.','Une résistance parasite peut provoquer une chute de tension sous charge.','Une continuité parfaite sans charge ne garantit pas le fonctionnement du circuit.'],vals:[['Ohm','U = R × I','base'],['Puissance','P = U × I','base'],['Résistance','R = U / I','base']]}
+};
+function tool(k){const x=tools[k];document.getElementById('toolBox').innerHTML='<div class="card"><h2>'+x.t+'</h2><p>'+x.intro+'</p><h3>📋 Procédure</h3><ol class="steps">'+x.steps.map((s,i)=>'<li>'+esc(s)+'</li>').join('')+'</ol><h3>📏 Repères</h3>'+x.vals.map(v=>'<div class="result"><b>'+esc(v[0])+'</b><br>'+esc(v[1])+'<br><span class="muted small">'+esc(v[2])+'</span></div>').join('')+'<div class="result warn small">⚠️ Les valeurs indicatives ne remplacent pas les données constructeur.</div></div>';document.getElementById('toolBox').scrollIntoView({behavior:'smooth'});}
+
+async function decodeVin(){
+  const v=document.getElementById('vinv').value.trim().toUpperCase(),o=document.getElementById('vinres');
+  if(v.length!==17){o.innerHTML='<div class="result warn">17 caractères attendus.</div>';return}
+  o.innerHTML='Décodage…';
+  try{
+    const r=await fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValuesExtended/'+encodeURIComponent(v)+'?format=json');
+    const j=await r.json(),x=j.Results.reduce((a,z)=>(a[z.Variable]=z.Value,a),{});
+    o.innerHTML='<div class="result ok"><b>'+esc(x.Make)+'</b> '+esc(x.Model)+'<br>Année : '+esc(x["Model Year"])+'<br>Moteur : '+esc(x["Engine Model"])+'</div>';
+  }catch(e){o.innerHTML='<div class="result warn">vPIC inaccessible.</div>'}
+}
+load();
+</script>
+</body>
+</html>
