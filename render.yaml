@@ -3,10 +3,16 @@ services:
     name: mecacheck-ai
     runtime: node
     rootDir: server
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: pnpm install --frozen-lockfile
+    startCommand: pnpm start
     envVars:
       - key: OPENAI_API_KEY
         sync: false
+      - key: MECACHECK_API_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://dylanbertron.github.io
+      - key: NODE_VERSION
+        value: 24.21.0
       - key: OPENAI_MODEL
         value: gpt-5.6-mini
